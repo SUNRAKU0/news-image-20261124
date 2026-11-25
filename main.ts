@@ -1,6 +1,13 @@
 // News-image entry: copies the front-page image beside this file to /output/entry.png.
 // Node 22, standard library only, no network, deterministic.
-import { copyFileSync } from 'node:fs';
+import { copyFileSync, existsSync, mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 
-copyFileSync(new URL('./entry.png', import.meta.url), join(process.env.MAKEFUN_OUTPUT_DIR ?? '/output', 'entry.png'));
+const source = new URL('./entry.png', import.meta.url);
+const outDir = process.env.MAKEFUN_OUTPUT_DIR ?? '/output';
+
+if (!existsSync(source)) {
+  throw new Error('entry.png is missing next to main.ts; nothing to copy.');
+}
+mkdirSync(outDir, { recursive: true });
+copyFileSync(source, join(outDir, 'entry.png'));
